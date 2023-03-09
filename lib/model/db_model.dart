@@ -1,10 +1,9 @@
+
 import 'package:hive_flutter/adapters.dart';
 part 'db_model.g.dart';
 
 @HiveType(typeId: 1)
 class StudentModel {
- 
-
   @HiveField(0)
   final String name;
 
@@ -17,5 +16,9 @@ class StudentModel {
   @HiveField(3)
   final String? number;
 
-  StudentModel({required this.name, required this.age, required this.classes,required this.number});
+  StudentModel(
+      {required this.name,
+      required this.age,
+      required this.classes,
+      required this.number});
 }

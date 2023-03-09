@@ -1,38 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:student_record/db/functions/db_functions.dart';
 import 'package:student_record/model/db_model.dart';
-import 'package:student_record/screens/text_fields.dart';
+import 'package:student_record/widgets/text_fields.dart';
 
-class BottomAddsheet extends StatelessWidget {
-  BottomAddsheet({
+class AddDetailsScreen extends StatelessWidget {
+  AddDetailsScreen({
     super.key,
+    required this.bannertitile,
+    required this.btnName,
+    this.model,
+    required this.isUpdate,
+    this.keys,
   });
+
+  final String bannertitile;
+  final String btnName;
+  final StudentModel? model;
+  final bool isUpdate;
+  final int? keys;
 
   final _studentName = TextEditingController();
   final _studentAge = TextEditingController();
   final _studentClass = TextEditingController();
   final _studentNumber = TextEditingController();
   final _formkey = GlobalKey<FormState>();
-
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () {
-        modelBottomsheet(
-            context, "Submit", "Add Student Details", "Successfully Added");
-      },
-      child: const Icon(Icons.add),
-    );
-  }
-
-  modelBottomsheet(
-      BuildContext context, String btn, String bannertitile, String snackbar) {
-    return showModalBottomSheet(
-      isScrollControlled: true,
-      context: context,
-      elevation: 5,
-      builder: (context) => SizedBox(
-        height: 680,
+    if(isUpdate){
+     _studentName.text = model!.name;
+    _studentAge.text = model!.age;
+    _studentClass.text = model!.classes!;
+    _studentNumber.text = model!.number!;
+    }
+    return Scaffold(
+      body: SafeArea(
         child: Form(
           key: _formkey,
           child: ListView(
@@ -57,7 +59,7 @@ class BottomAddsheet extends StatelessWidget {
                 hintname: "",
                 labelname: "Age",
                 controllname: _studentAge,
-                validatetext: "Age Required",
+                validatetext: "Please Enter Your Age",
                 length: 2,
                 prefix: "",
               ),
@@ -65,14 +67,14 @@ class BottomAddsheet extends StatelessWidget {
                 hintname: "",
                 labelname: "Address",
                 controllname: _studentClass,
-                validatetext: "Address required",
+                validatetext: "Please Enter Your Address",
                 prefix: "",
               ),
               ForTextFields(
                 hintname: "",
                 labelname: "Contact Number",
                 controllname: _studentNumber,
-                validatetext: "Contact Number Required",
+                validatetext: "Please Enter Your Contact Number",
                 length: 10,
                 prefix: "+91",
               ),
@@ -82,12 +84,14 @@ class BottomAddsheet extends StatelessWidget {
               Align(
                 child: ElevatedButton(
                   onPressed: () {
-                    if (_formkey.currentState!.validate()) {
-                      onAddStudentButtonClick(context, snackbar);
+                    if (_formkey.currentState!.validate() && isUpdate != true) {
+                      onAddStudentButtonClick(context, "Added Succesfully");
                       Navigator.pop(context);
+                    } else {
+                      onEdit("Update Successfully",context);
                     }
                   },
-                  child: Text(btn),
+                  child: Text(btnName),
                 ),
               ),
             ],
@@ -95,6 +99,29 @@ class BottomAddsheet extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> onEdit(String snack, context) async {
+    final sname = _studentName.text.trim();
+    final sage = _studentAge.text.trim();
+    final sClass = _studentClass.text.trim();
+    final sNumber = _studentNumber.text.trim();
+
+    if (sname.isEmpty || sage.isEmpty || sClass.isEmpty || sNumber.isEmpty) {
+      return;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.green,
+          margin: const EdgeInsets.all(10),
+          behavior: SnackBarBehavior.floating,
+          content: Text(snack),
+        ),
+      );
+    }
+    final studentvalue =
+        StudentModel(name: sname, age: sage, classes: sClass, number: sNumber);
+    Provider.of<DatabaseProvider>(context,listen: false).edit(keys!, studentvalue);
   }
 
   Future<void> onAddStudentButtonClick(context, String snack) async {
@@ -118,23 +145,11 @@ class BottomAddsheet extends StatelessWidget {
 
     final studentvalue =
         StudentModel(name: sname, age: sage, classes: sClass, number: sNumber);
-    addStudentsdetails(studentvalue);
+    Provider.of<DatabaseProvider>(context,listen: false).addStudentsdetails(studentvalue);
 
     _studentName.clear();
     _studentAge.clear();
     _studentClass.clear();
     _studentNumber.clear();
-  }
-
-  editUser(StudentModel studentModel, context, int id) async {
-    modelBottomsheet(context, "Save", "Update Student Details",
-        "Update Successfully");
-    _studentName.text = studentModel.name;
-    _studentAge.text = studentModel.age;
-    _studentClass.text = studentModel.classes!;
-    _studentNumber.text = studentModel.number!;
-
-      deleteStudents(id);
-    
   }
 }

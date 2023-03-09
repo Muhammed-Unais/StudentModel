@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:student_record/db/functions/db_functions.dart';
-import 'package:student_record/model/db_model.dart';
 import 'package:student_record/screens/details_screen.dart';
 
 class SearchWidgets extends SearchDelegate {
@@ -28,22 +28,19 @@ class SearchWidgets extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: studentListNotifier,
-      builder: (BuildContext context, List<StudentModel> listStudent,
-          Widget? child) {
+    return Consumer<DatabaseProvider>(
+      builder: (BuildContext context, databaseProvider, Widget? child) {
         return ListView.builder(
-          itemCount: listStudent.length,
+          itemCount: databaseProvider.allData.length,
           itemBuilder: (ctx, index) {
-            final data = listStudent[index];
-            if (data.name.toLowerCase().contains(
+            final value=databaseProvider.allData[index];
+            if (value.name.toLowerCase().contains(
                   query.toLowerCase(),
                 )) {
               return Column(
                 children: [
                   ListTile(
-                    title: Text(data.name),
-                   
+                    title: Text(value.name),
                   ),
                 ],
               );
@@ -58,13 +55,12 @@ class SearchWidgets extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: studentListNotifier,
-      builder: (BuildContext context, List<StudentModel> listStudent,
+    return Consumer<DatabaseProvider>(
+      builder: (BuildContext context, databaseProvider,
           Widget? child) {
         return ListView.builder(
           itemBuilder: (ctx, index) {
-            final data = listStudent[index];
+            final data = databaseProvider.allData[index];
             if (data.name.toLowerCase().contains(query.toLowerCase())) {
               return ListTile(
                 title: Text(data.name),
@@ -82,13 +78,16 @@ class SearchWidgets extends SearchDelegate {
                     ),
                   );
                 },
-                 leading: const CircleAvatar(backgroundImage: NetworkImage("https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"),),
+                leading: const CircleAvatar(
+                  backgroundImage: NetworkImage(
+                      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"),
+                ),
               );
             } else {
               return Container();
             }
           },
-          itemCount: listStudent.length,
+          itemCount: databaseProvider.allData.length,
         );
       },
     );
