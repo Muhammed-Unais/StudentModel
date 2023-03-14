@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:student_record/db/functions/db_functions.dart';
+import 'package:student_record/controllers/db/db_functions.dart';
 import 'package:student_record/model/db_model.dart';
-
-import 'screens/home_page.dart';
+import 'package:student_record/view/home_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +21,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => DatabaseProvider(),
-      child: const MaterialApp(
+      child:  const MaterialApp(
+        themeMode: ThemeMode.dark,
         debugShowCheckedModeBanner: false,
         home: HomePage(),
       ),
